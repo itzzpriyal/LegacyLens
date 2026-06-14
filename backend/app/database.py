@@ -8,9 +8,9 @@ _is_sqlite = _url.startswith("sqlite")
 
 engine = create_engine(
     _url,
-    connect_args={"check_same_thread": False} if _is_sqlite else {},
+    connect_args={"check_same_thread": False} if _is_sqlite else {"connect_timeout": 10},
     pool_pre_ping=True,
-    **({} if _is_sqlite else {"pool_size": 10, "max_overflow": 20}),
+    **({} if _is_sqlite else {"pool_size": 2, "max_overflow": 3, "pool_timeout": 30, "pool_recycle": 300}),
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
