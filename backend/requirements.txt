@@ -6,6 +6,7 @@ alembic==1.13.1
 python-multipart==0.0.9
 python-dotenv==1.0.1
 pydantic==2.7.1
+pydantic-core==2.18.4
 pydantic-settings==2.3.0
 javalang==0.13.0
 gitpython==3.1.43
