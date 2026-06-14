@@ -46,7 +46,8 @@ export default function AnalysisPage() {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
-  const [apiKey] = useState(() => localStorage.getItem('legacylens_api_key') || '');
+  const [provider] = useState(() => localStorage.getItem('legacylens_llm_provider') || 'openai');
+  const [apiKey] = useState(() => localStorage.getItem(`legacylens_api_key_${localStorage.getItem('legacylens_llm_provider') || 'openai'}`) || '');
 
   const fetchProject = async () => {
     if (!id) return;
@@ -125,10 +126,10 @@ export default function AnalysisPage() {
     if (!id) return;
     setIsGeneratingAI(true);
     try {
-      const result = await aiApi.generateRecommendations(id, apiKey);
+      const result = await aiApi.generateRecommendations(id, apiKey, provider);
       toast.success(`Generated recommendations for ${result.updated} files`);
       // Also get narrative
-      const narrative = await aiApi.generateNarrative(id, apiKey);
+      const narrative = await aiApi.generateNarrative(id, apiKey, provider);
       if (roadmap) setRoadmap({ ...roadmap, narrative: narrative.narrative });
       // Reload dashboard
       setDashboard(null);
@@ -192,7 +193,7 @@ export default function AnalysisPage() {
               AI Recommendations
             </button>
             <a
-              href={exportApi.exportReport(id!, 'pdf', apiKey)}
+              href={exportApi.exportReport(id!, 'pdf', apiKey, provider)}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary"
@@ -201,7 +202,7 @@ export default function AnalysisPage() {
               PDF Report
             </a>
             <a
-              href={exportApi.exportReport(id!, 'docx', apiKey)}
+              href={exportApi.exportReport(id!, 'docx', apiKey, provider)}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary"

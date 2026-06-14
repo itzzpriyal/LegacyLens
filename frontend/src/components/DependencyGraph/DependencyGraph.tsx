@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -85,7 +85,11 @@ function buildLayout(nodes: GraphNodeType[], edges: DependencyGraphType['edges']
     source: e.source,
     target: e.target,
     type: 'smoothstep',
-    style: { stroke: '#4f46e540', strokeWidth: 1.5 },
+    style: { 
+      stroke: '#ffffff', 
+      strokeWidth: 2.5,
+      filter: 'drop-shadow(0px 0px 4px rgba(255,255,255,0.6))'
+    },
     animated: false,
   }));
 
@@ -94,9 +98,34 @@ function buildLayout(nodes: GraphNodeType[], edges: DependencyGraphType['edges']
 
 export default function DependencyGraphView({ graph }: DependencyGraphProps) {
   const { rfNodes, rfEdges } = buildLayout(graph.nodes, graph.edges);
-  const [nodes, , onNodesChange] = useNodesState(rfNodes);
-  const [edges, , onEdgesChange] = useEdgesState(rfEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(rfNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(rfEdges);
   const [selected, setSelected] = useState<GraphNodeType | null>(null);
+
+  useEffect(() => {
+    if (!selected) {
+      setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, opacity: 1 } })));
+      setEdges(eds => eds.map(e => ({ ...e, style: { ...e.style, opacity: 1 } })));
+      return;
+    }
+
+    const connected = new Set<string>();
+    connected.add(selected.id);
+    graph.edges.forEach(e => {
+      if (e.source === selected.id) connected.add(e.target);
+      if (e.target === selected.id) connected.add(e.source);
+    });
+
+    setNodes(nds => nds.map(n => ({
+      ...n,
+      style: { ...n.style, opacity: connected.has(n.id) ? 1 : 0.2, transition: 'opacity 0.3s' }
+    })));
+
+    setEdges(eds => eds.map(e => ({
+      ...e,
+      style: { ...e.style, opacity: (e.source === selected.id || e.target === selected.id) ? 1 : 0.1, transition: 'opacity 0.3s' }
+    })));
+  }, [selected, setNodes, setEdges, graph.edges]);
 
   const downloadImage = () => {
     const rfEl = document.querySelector('.react-flow') as HTMLElement;
@@ -114,8 +143,12 @@ export default function DependencyGraphView({ graph }: DependencyGraphProps) {
 
   const onNodeClick = useCallback((_: unknown, node: Node) => {
     const gn = graph.nodes.find(n => n.id === node.id);
-    setSelected(gn || null);
+    setSelected(prev => (prev?.id === node.id ? null : gn || null));
   }, [graph.nodes]);
+
+  const onPaneClick = useCallback(() => {
+    setSelected(null);
+  }, []);
 
   const colors = RISK_NODE_COLORS;
 
@@ -127,6 +160,7 @@ export default function DependencyGraphView({ graph }: DependencyGraphProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
+        onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{ padding: 0.2 }}
@@ -135,7 +169,7 @@ export default function DependencyGraphView({ graph }: DependencyGraphProps) {
         className="bg-slate-950"
       >
         <Background color="#1e293b" gap={20} size={1} />
-        <Controls />
+        <Controls position="top-right" />
         <MiniMap
           nodeColor={(node) => {
             const level = node.data?.risk_level as RiskLevel;
@@ -205,6 +239,38 @@ export default function DependencyGraphView({ graph }: DependencyGraphProps) {
                   <p className="text-xs font-medium text-slate-200">{v}</p>
                 </div>
               ))}
+            </div>
+            <div className="pt-3 border-t border-slate-800">
+              <p className="text-[10px] text-slate-500 mb-1">Depends on</p>
+              <div className="max-h-24 overflow-y-auto space-y-1">
+                {graph.edges.filter(e => e.source === selected.id).length === 0 && (
+                  <p className="text-[10px] text-slate-600">None</p>
+                )}
+                {graph.edges.filter(e => e.source === selected.id).map(e => {
+                  const targetNode = graph.nodes.find(n => n.id === e.target);
+                  return (
+                    <div key={e.id} className="text-[10px] text-slate-300 font-mono truncate" title={targetNode?.label}>
+                      {targetNode?.label.split('/').pop()}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="pt-2 border-t border-slate-800">
+              <p className="text-[10px] text-slate-500 mb-1">Depended on by</p>
+              <div className="max-h-24 overflow-y-auto space-y-1">
+                {graph.edges.filter(e => e.target === selected.id).length === 0 && (
+                  <p className="text-[10px] text-slate-600">None</p>
+                )}
+                {graph.edges.filter(e => e.target === selected.id).map(e => {
+                  const sourceNode = graph.nodes.find(n => n.id === e.source);
+                  return (
+                    <div key={e.id} className="text-[10px] text-slate-300 font-mono truncate" title={sourceNode?.label}>
+                      {sourceNode?.label.split('/').pop()}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </motion.div>
         )}

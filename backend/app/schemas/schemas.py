@@ -161,12 +161,14 @@ class MigrationRoadmap(BaseModel):
 class AIRecommendationRequest(BaseModel):
     project_id: str
     api_key: Optional[str] = None
+    provider: str = "openai"
 
 
 class ReportRequest(BaseModel):
     project_id: str
     format: str = "pdf"  # pdf | docx
     api_key: Optional[str] = None
+    provider: str = "openai"
 
 
 # ──────────── Dashboard Schemas ────────────

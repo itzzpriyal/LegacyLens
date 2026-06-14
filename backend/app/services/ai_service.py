@@ -9,12 +9,29 @@ from typing import List, Optional, Dict, Any
 from app.models.models import SourceFile, Project
 
 
-def _make_client(api_key: str):
+def _make_client(api_key: str, provider: str = "openai"):
     try:
         from openai import OpenAI
-        return OpenAI(api_key=api_key)
+        base_url = None
+        if provider == "groq":
+            base_url = "https://api.groq.com/openai/v1"
+        elif provider == "mistral":
+            base_url = "https://api.mistral.ai/v1"
+        elif provider == "together":
+            base_url = "https://api.together.xyz/v1"
+        elif provider == "anthropic":
+            # Just for compatibility if we decide to use a proxy, otherwise OpenAI SDK doesn't natively hit Anthropic.
+            pass
+        
+        return OpenAI(api_key=api_key, base_url=base_url)
     except ImportError:
         raise RuntimeError("openai package not installed")
+
+def _get_default_model(provider: str) -> str:
+    if provider == "groq": return "llama3-8b-8192"
+    if provider == "mistral": return "mistral-small-latest"
+    if provider == "together": return "meta-llama/Llama-3-8b-chat-hf"
+    return "gpt-4o-mini"
 
 
 def _redact_secrets(text: str) -> str:
@@ -27,7 +44,8 @@ def _redact_secrets(text: str) -> str:
 def generate_file_recommendation(
     file: SourceFile,
     api_key: str,
-    model: str = "gpt-4o-mini"
+    provider: str = "openai",
+    model: str = ""
 ) -> str:
     """
     Generate a plain-English recommendation for a high/critical risk file.
@@ -37,7 +55,8 @@ def generate_file_recommendation(
         return _rule_based_recommendation(file)
 
     try:
-        client = _make_client(api_key)
+        client = _make_client(api_key, provider)
+        use_model = model or _get_default_model(provider)
         fv = file.feature_vector or {}
         factors = file.risk_factors or []
 
@@ -69,7 +88,7 @@ Provide numbered recommendations targeting these specific issues."""
         prompt = _redact_secrets(prompt)
 
         response = client.chat.completions.create(
-            model=model,
+            model=use_model,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=500,
             temperature=0.3,
@@ -124,14 +143,16 @@ def generate_roadmap_narrative(
     project: Project,
     phases: List[Dict[str, Any]],
     api_key: str,
-    model: str = "gpt-4o-mini"
+    provider: str = "openai",
+    model: str = ""
 ) -> str:
     """Generate a plain-English executive narrative for the migration roadmap."""
     if not api_key:
         return _rule_based_roadmap_narrative(project, phases)
 
     try:
-        client = _make_client(api_key)
+        client = _make_client(api_key, provider)
+        use_model = model or _get_default_model(provider)
         phases_text = "\n".join(
             f"Phase {p['phase_number']} — {p['name']} ({len(p['files'])} files): {p['description']}"
             for p in phases
@@ -155,7 +176,7 @@ Migration Phases:
 Write the executive summary:"""
 
         response = client.chat.completions.create(
-            model=model,
+            model=use_model,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=600,
             temperature=0.4,
@@ -197,14 +218,16 @@ def generate_executive_summary(
     phases: List[Dict],
     top_risks: List[SourceFile],
     api_key: str,
-    model: str = "gpt-4o-mini"
+    provider: str = "openai",
+    model: str = ""
 ) -> str:
     """Generate the executive summary section for the PDF report."""
     if not api_key:
         return _rule_based_executive_summary(project, top_risks)
 
     try:
-        client = _make_client(api_key)
+        client = _make_client(api_key, provider)
+        use_model = model or _get_default_model(provider)
         risk_list = "\n".join(
             f"- {f.relative_path}: {f.risk_score:.1f}/100 ({f.risk_level.value})"
             for f in top_risks[:5]
@@ -225,7 +248,7 @@ Top Risk Files:
 Audience: C-level executives and engineering leadership. Focus on business impact and strategic recommendations."""
 
         response = client.chat.completions.create(
-            model=model,
+            model=use_model,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=700,
             temperature=0.4,

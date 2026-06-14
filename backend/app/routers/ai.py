@@ -37,7 +37,7 @@ def generate_recommendations(
     updated = []
 
     for f in high_risk_files:
-        rec = generate_file_recommendation(f, api_key=api_key)
+        rec = generate_file_recommendation(f, api_key=api_key, provider=body.provider)
         f.ai_recommendation = rec
         db.add(f)
         updated.append({"file_id": f.id, "path": f.relative_path, "recommendation": rec})
@@ -63,6 +63,6 @@ def generate_narrative(
 
     files = db.query(SourceFile).filter(SourceFile.project_id == project_id).all()
     phases = generate_roadmap(files)
-    narrative = generate_roadmap_narrative(project, phases, api_key=body.api_key or "")
+    narrative = generate_roadmap_narrative(project, phases, api_key=body.api_key or "", provider=body.provider)
 
     return {"narrative": narrative}

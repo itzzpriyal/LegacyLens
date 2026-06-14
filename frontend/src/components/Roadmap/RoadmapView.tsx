@@ -142,7 +142,7 @@ export default function RoadmapView({ data, projectId }: RoadmapViewProps) {
               nodesConnectable={false}
             >
               <Background color="#1e293b" gap={20} size={1} />
-              <Controls />
+              <Controls position="top-right" />
             </ReactFlow>
           ) : (
             <div className="flex items-center justify-center h-full text-sm text-slate-500">

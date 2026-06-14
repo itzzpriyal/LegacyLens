@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -11,6 +11,37 @@ export default function LandingPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [githubUrl, setGithubUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [uploadLogs, setUploadLogs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setUploadLogs([]);
+      return;
+    }
+
+    const messages = [
+      "Uploading file...",
+      "Extracting archive...",
+      "Reading project structure...",
+      "Parsing dependencies...",
+      "Analyzing files...",
+      "Waiting for backend response..."
+    ];
+
+    let currentIndex = 0;
+    setUploadLogs([messages[0]]);
+
+    const interval = setInterval(() => {
+      currentIndex++;
+      if (currentIndex < messages.length) {
+        setUploadLogs(prev => [...prev, messages[currentIndex]]);
+      } else {
+        clearInterval(interval);
+      }
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleFileUpload = async (file: File) => {
     if (!file.name.endsWith('.zip')) {
@@ -149,9 +180,23 @@ export default function LandingPage() {
                 }}
               />
               {isLoading ? (
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                  <p className="text-slate-400">Uploading & analyzing...</p>
+                <div className="flex flex-col items-start gap-3 w-full max-w-sm mx-auto bg-slate-900/50 p-5 rounded-xl border border-slate-800">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm font-semibold text-primary-400">Processing...</span>
+                  </div>
+                  <div className="w-full space-y-2 text-left">
+                    {uploadLogs.map((log, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex items-start gap-2 text-xs font-mono text-slate-400"
+                      >
+                        <span className="text-primary-500 mt-0.5">{'>'}</span> {log}
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <>

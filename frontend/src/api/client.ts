@@ -91,25 +91,28 @@ export const roadmapApi = {
 // ── AI ─────────────────────────────────────────────────────────────────────
 
 export const aiApi = {
-  generateRecommendations: (projectId: string, apiKey?: string) =>
+  generateRecommendations: (projectId: string, apiKey?: string, provider?: string) =>
     api.post<AIRecommendationsResponse>(`/projects/${projectId}/recommendations`, {
       project_id: projectId,
       api_key: apiKey || '',
+      provider: provider || 'openai',
     }).then(r => r.data),
 
-  generateNarrative: (projectId: string, apiKey?: string) =>
+  generateNarrative: (projectId: string, apiKey?: string, provider?: string) =>
     api.post<{ narrative: string }>(`/projects/${projectId}/roadmap-narrative`, {
       project_id: projectId,
       api_key: apiKey || '',
+      provider: provider || 'openai',
     }).then(r => r.data),
 };
 
 // ── Export ─────────────────────────────────────────────────────────────────
 
 export const exportApi = {
-  exportReport: (projectId: string, format: 'pdf' | 'docx', apiKey?: string) => {
+  exportReport: (projectId: string, format: 'pdf' | 'docx', apiKey?: string, provider?: string) => {
     const params: Record<string, string> = { format };
     if (apiKey) params.api_key = apiKey;
+    if (provider) params.provider = provider;
     return `${BASE_URL}/api/projects/${projectId}/export?${new URLSearchParams(params).toString()}`;
   },
   exportMetadata: (projectId: string) => {

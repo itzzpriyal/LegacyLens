@@ -16,6 +16,7 @@ def export_report(
     project_id: str,
     format: str = Query(default="pdf", regex="^(pdf|docx)$"),
     api_key: str = Query(default=""),
+    provider: str = Query(default="openai"),
     db: Session = Depends(get_db),
 ):
     """Export the executive report as PDF or DOCX."""
@@ -29,7 +30,7 @@ def export_report(
 
     top_risks = sorted(files, key=lambda f: f.risk_score, reverse=True)[:10]
     phases = generate_roadmap(files)
-    executive_summary = generate_executive_summary(project, phases, top_risks, api_key)
+    executive_summary = generate_executive_summary(project, phases, top_risks, api_key, provider)
 
     if format == "pdf":
         pdf_bytes = generate_pdf(project, files, phases, executive_summary)

@@ -36,9 +36,27 @@ export default function DebtDashboard({ data }: DebtDashboardProps) {
           className="glass-card p-6 flex flex-col items-center justify-center"
         >
           <ScoreGauge score={overall_debt_score} label="Technical Debt Score" size="lg" />
-          <p className="text-xs text-slate-500 mt-4 text-center max-w-32">
-            Lower is better. Score based on debt item count and severity.
-          </p>
+          
+          <div className="mt-6 border-t border-slate-800/60 pt-4 text-left w-full space-y-2">
+            <h4 className="text-xs font-semibold text-slate-300">Technical Debt</h4>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Technical debt represents the accumulation of poorly designed, duplicated, or overly complex code. If left unchecked, it makes future updates slower and more difficult. 
+            </p>
+            <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-800 text-[10px] text-slate-400 mt-2 space-y-2">
+              <div className="flex items-center justify-between">
+                <span>0 - 20</span>
+                <span className="text-emerald-400 font-medium">Healthy</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>21 - 50</span>
+                <span className="text-amber-400 font-medium">Needs Attention</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>51+</span>
+                <span className="text-red-400 font-medium">Critical Risk</span>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <motion.div
