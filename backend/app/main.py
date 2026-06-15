@@ -44,6 +44,27 @@ app.include_router(export.router, prefix="/api/projects", tags=["Export"])
 async def startup():
     """Create all DB tables on startup."""
     Base.metadata.create_all(bind=engine)
+    
+    # Auto-migrate schema: Add user_id column to existing projects table
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            if engine.dialect.name == "sqlite":
+                cols = [row[1] for row in conn.execute(text("PRAGMA table_info(projects)"))]
+                if "user_id" not in cols:
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN user_id VARCHAR REFERENCES users(id)"))
+                    conn.commit()
+            elif engine.dialect.name == "postgresql":
+                # Check if column exists in Postgres
+                res = conn.execute(text(
+                    "SELECT column_name FROM information_schema.columns "
+                    "WHERE table_name='projects' AND column_name='user_id'"
+                ))
+                if not res.fetchone():
+                    conn.execute(text("ALTER TABLE projects ADD COLUMN user_id VARCHAR REFERENCES users(id)"))
+                    conn.commit()
+    except Exception as e:
+        logging.error(f"Migration error: {e}")
 
 
 @app.get("/api/health")

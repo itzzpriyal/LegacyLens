@@ -144,8 +144,8 @@ export default function ProjectsPage() {
                       <RiskBadge
                         level={
                           project.avg_risk_score > 80 ? 'Critical' :
-                          project.avg_risk_score > 60 ? 'High' :
-                          project.avg_risk_score > 30 ? 'Medium' : 'Low'
+                            project.avg_risk_score > 60 ? 'High' :
+                              project.avg_risk_score > 30 ? 'Medium' : 'Low'
                         }
                         score={project.avg_risk_score}
                       />
