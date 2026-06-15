@@ -130,6 +130,11 @@ export default function RegisterPage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-fuchsia-600/10 blur-[100px]" />
       </div>
 
+      {/* Subtle Left Branding Watermark */}
+      <div className="absolute left-8 top-1/2 -translate-y-1/2 -rotate-90 origin-center text-[80px] font-black tracking-[0.2em] text-cyan-500/[0.03] select-none pointer-events-none whitespace-nowrap z-0">
+        LEGACYLENS_SYS_01
+      </div>
+
       <div className="relative flex items-center justify-center z-10 w-[600px] h-[600px]">
         {/* Intricate Outer Ring System replicating the image */}
         <motion.div
