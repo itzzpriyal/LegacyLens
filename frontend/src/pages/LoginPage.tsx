@@ -90,15 +90,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isShaking, setIsShaking] = useState(false);
 
   useEffect(() => {
-    if (user) navigate('/', { replace: true });
+    if (user) navigate('/projects', { replace: true });
   }, [user, navigate]);
+
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 500);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       setError('ERROR: CREDENTIALS REQUIRED');
+      triggerShake();
       return;
     }
     setError('');
@@ -106,9 +113,10 @@ export default function LoginPage() {
     try {
       await login(email, password);
       toast.success('ACCESS GRANTED', { style: { background: '#1a0b2e', color: '#e879f9', border: '1px solid #d946ef', borderRadius: '0', fontFamily: 'monospace' }});
-      navigate('/', { replace: true });
+      // Navigation handled by useEffect
     } catch (err: any) {
-      setError('ACCESS_DENIED: INVALID CREDENTIALS');
+      setError('INCORRECT EMAIL OR PASSWORD');
+      triggerShake();
       setIsLoading(false);
     }
   };
@@ -216,13 +224,15 @@ export default function LoginPage() {
             </div>
 
             <div className="pt-2">
-              <button
+              <motion.button
                 type="submit"
                 disabled={isLoading}
-                className="w-[140px] mx-auto block py-2 border border-white text-white text-sm tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                animate={isShaking ? { x: [-10, 10, -10, 10, 0] } : {}}
+                transition={{ duration: 0.4 }}
+                className={`w-[140px] mx-auto block py-2 border ${isShaking ? 'border-red-500 bg-red-500/20 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'border-white text-white shadow-[0_0_15px_rgba(255,255,255,0.2)]'} text-sm tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {isLoading ? 'WORKING...' : '[ LOG IN ]'}
-              </button>
+              </motion.button>
             </div>
           </form>
 

@@ -51,11 +51,14 @@ def generate_file_recommendation(
     Generate a plain-English recommendation for a high/critical risk file.
     Uses ONLY structured metrics — never raw source code.
     """
-    if not api_key:
+    # Fallback to server-side API key if client didn't provide one
+    from app.config import settings
+    effective_key = api_key or settings.OPENAI_API_KEY
+    if not effective_key:
         return _rule_based_recommendation(file)
 
     try:
-        client = _make_client(api_key, provider)
+        client = _make_client(effective_key, provider)
         use_model = model or _get_default_model(provider)
         fv = file.feature_vector or {}
         factors = file.risk_factors or []
@@ -147,11 +150,13 @@ def generate_roadmap_narrative(
     model: str = ""
 ) -> str:
     """Generate a plain-English executive narrative for the migration roadmap."""
-    if not api_key:
+    from app.config import settings
+    effective_key = api_key or settings.OPENAI_API_KEY
+    if not effective_key:
         return _rule_based_roadmap_narrative(project, phases)
 
     try:
-        client = _make_client(api_key, provider)
+        client = _make_client(effective_key, provider)
         use_model = model or _get_default_model(provider)
         phases_text = "\n".join(
             f"Phase {p['phase_number']} — {p['name']} ({len(p['files'])} files): {p['description']}"
@@ -222,11 +227,13 @@ def generate_executive_summary(
     model: str = ""
 ) -> str:
     """Generate the executive summary section for the PDF report."""
-    if not api_key:
+    from app.config import settings
+    effective_key = api_key or settings.OPENAI_API_KEY
+    if not effective_key:
         return _rule_based_executive_summary(project, top_risks)
 
     try:
-        client = _make_client(api_key, provider)
+        client = _make_client(effective_key, provider)
         use_model = model or _get_default_model(provider)
         risk_list = "\n".join(
             f"- {f.relative_path}: {f.risk_score:.1f}/100 ({f.risk_level.value})"

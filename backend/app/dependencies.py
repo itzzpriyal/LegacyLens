@@ -42,3 +42,22 @@ def get_current_user(
             detail="User not found",
         )
     return user
+
+
+def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """Optional version of get_current_user. Returns None if not authenticated."""
+    if credentials is None:
+        return None
+
+    payload = decode_access_token(credentials.credentials)
+    if payload is None:
+        return None
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        return None
+
+    return db.query(User).filter(User.id == user_id).first()

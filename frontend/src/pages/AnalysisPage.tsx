@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
   LayoutDashboard, GitBranch, Bug, Shield, Map, Sparkles,
-  FileDown, ArrowLeft, Clock, CheckCircle2, XCircle, Loader2, Cpu
+  FileDown, FileArchive, ArrowLeft, Clock, CheckCircle2, XCircle, Loader2, Cpu
 } from 'lucide-react';
 import type { Project, DashboardSummary, DependencyGraph, DebtSummary, SecuritySummary, MigrationRoadmap } from '../types';
 import { projectsApi, analysisApi, graphApi, debtApi, securityApi, roadmapApi, aiApi, exportApi } from '../api/client';
@@ -195,33 +195,41 @@ export default function AnalysisPage() {
               )}
               AI Recommendations
             </button>
-            <a
-              href={exportApi.exportReport(id!, 'pdf', apiKey, provider)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary"
-            >
-              <FileDown className="w-4 h-4" />
-              PDF Report
-            </a>
-            <a
-              href={exportApi.exportReport(id!, 'docx', apiKey, provider)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary"
-            >
-              <FileDown className="w-4 h-4" />
-              DOCX
-            </a>
-            <a
-              href={exportApi.exportMetadata(id!)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary"
-            >
-              <FileDown className="w-4 h-4" />
-              Metadata ZIP
-            </a>
+            <div className="relative group z-50">
+              <button className="btn-secondary">
+                <FileDown className="w-4 h-4" />
+                Download
+              </button>
+              <div className="absolute right-0 mt-2 w-48 rounded-xl overflow-hidden glass-card shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-slate-700/50">
+                <a
+                  href={exportApi.exportReport(id!, 'pdf', apiKey, provider)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors border-b border-slate-800"
+                >
+                  <FileDown className="w-4 h-4 text-red-400" />
+                  PDF Report
+                </a>
+                <a
+                  href={exportApi.exportReport(id!, 'docx', apiKey, provider)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors border-b border-slate-800"
+                >
+                  <FileDown className="w-4 h-4 text-blue-400" />
+                  DOCX Report
+                </a>
+                <a
+                  href={exportApi.exportMetadata(id!)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800/80 hover:text-white transition-colors"
+                >
+                  <FileArchive className="w-4 h-4 text-green-400" />
+                  Metadata ZIP
+                </a>
+              </div>
+            </div>
           </div>
         )}
       </motion.div>

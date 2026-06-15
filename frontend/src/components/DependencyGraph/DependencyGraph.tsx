@@ -101,31 +101,33 @@ export default function DependencyGraphView({ graph }: DependencyGraphProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(rfNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(rfEdges);
   const [selected, setSelected] = useState<GraphNodeType | null>(null);
+  const [hovered, setHovered] = useState<GraphNodeType | null>(null);
 
   useEffect(() => {
-    if (!selected) {
-      setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, opacity: 1 } })));
-      setEdges(eds => eds.map(e => ({ ...e, style: { ...e.style, opacity: 1 } })));
+    const active = hovered || selected;
+    if (!active) {
+      setNodes(nds => nds.map(n => ({ ...n, style: { ...n.style, opacity: 1, transition: 'opacity 0.3s' } })));
+      setEdges(eds => eds.map(e => ({ ...e, style: { ...e.style, opacity: 1, transition: 'opacity 0.3s' } })));
       return;
     }
 
     const connected = new Set<string>();
-    connected.add(selected.id);
+    connected.add(active.id);
     graph.edges.forEach(e => {
-      if (e.source === selected.id) connected.add(e.target);
-      if (e.target === selected.id) connected.add(e.source);
+      if (e.source === active.id) connected.add(e.target);
+      if (e.target === active.id) connected.add(e.source);
     });
 
     setNodes(nds => nds.map(n => ({
       ...n,
-      style: { ...n.style, opacity: connected.has(n.id) ? 1 : 0.2, transition: 'opacity 0.3s' }
+      style: { ...n.style, opacity: connected.has(n.id) ? 1 : 0.15, transition: 'opacity 0.3s' }
     })));
 
     setEdges(eds => eds.map(e => ({
       ...e,
-      style: { ...e.style, opacity: (e.source === selected.id || e.target === selected.id) ? 1 : 0.1, transition: 'opacity 0.3s' }
+      style: { ...e.style, opacity: (e.source === active.id || e.target === active.id) ? 1 : 0.05, transition: 'opacity 0.3s' }
     })));
-  }, [selected, setNodes, setEdges, graph.edges]);
+  }, [hovered, selected, setNodes, setEdges, graph.edges]);
 
   const downloadImage = () => {
     const rfEl = document.querySelector('.react-flow') as HTMLElement;
@@ -146,6 +148,15 @@ export default function DependencyGraphView({ graph }: DependencyGraphProps) {
     setSelected(prev => (prev?.id === node.id ? null : gn || null));
   }, [graph.nodes]);
 
+  const onNodeMouseEnter = useCallback((_: unknown, node: Node) => {
+    const gn = graph.nodes.find(n => n.id === node.id);
+    setHovered(gn || null);
+  }, [graph.nodes]);
+
+  const onNodeMouseLeave = useCallback(() => {
+    setHovered(null);
+  }, []);
+
   const onPaneClick = useCallback(() => {
     setSelected(null);
   }, []);
@@ -160,6 +171,8 @@ export default function DependencyGraphView({ graph }: DependencyGraphProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
+        onNodeMouseEnter={onNodeMouseEnter}
+        onNodeMouseLeave={onNodeMouseLeave}
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
         fitView

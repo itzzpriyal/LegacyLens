@@ -93,7 +93,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user) navigate('/', { replace: true });
+    if (user) navigate('/projects', { replace: true });
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,7 +115,7 @@ export default function RegisterPage() {
     try {
       await register(email, password);
       toast.success('NODE REGISTERED', { style: { background: '#1a0b2e', color: '#e879f9', border: '1px solid #d946ef', borderRadius: '0', fontFamily: 'monospace' }});
-      navigate('/', { replace: true });
+      // Navigation is handled by the useEffect above once `user` is populated in context
     } catch (err: any) {
       const msg = err?.response?.data?.detail || 'REGISTRATION_FAILED';
       setError(msg.toUpperCase());

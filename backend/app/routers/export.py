@@ -7,7 +7,7 @@ from app.models.models import Project, SourceFile, User
 from app.services.roadmap_engine import generate_roadmap
 from app.services.ai_service import generate_executive_summary
 from app.services.export_service import generate_pdf, generate_docx
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user_optional
 from app.services.auth_service import decode_access_token
 
 router = APIRouter()
@@ -38,8 +38,8 @@ def export_report(
     api_key: str = Query(default=""),
     provider: str = Query(default="openai"),
     token: str | None = Query(default=None),
+    current_user: User | None = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Export the executive report as PDF or DOCX."""
     user = _resolve_user(token, current_user if token is None else None, db)

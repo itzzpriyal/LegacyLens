@@ -42,6 +42,7 @@ export default function Dashboard({ data }: DashboardProps) {
       value: project.total_files.toString(),
       color: 'text-primary-400',
       bg: 'bg-primary-500/10 border-primary-500/20',
+      description: 'The total number of source code files successfully parsed and analyzed in this repository.',
     },
     {
       icon: Activity,
@@ -49,6 +50,7 @@ export default function Dashboard({ data }: DashboardProps) {
       value: project.avg_risk_score.toFixed(1),
       color: 'text-orange-400',
       bg: 'bg-orange-500/10 border-orange-500/20',
+      description: 'The mean of all per-file risk scores (0–100), where higher values indicate files more likely to break during migration.',
     },
     {
       icon: AlertTriangle,
@@ -56,6 +58,7 @@ export default function Dashboard({ data }: DashboardProps) {
       value: risk_distribution.critical.toString(),
       color: 'text-red-400',
       bg: 'bg-red-500/10 border-red-500/20',
+      description: 'The absolute count of files flagged as CRITICAL risk due to extreme complexity, circular dependencies, or secrets.',
     },
     {
       icon: Bug,
@@ -63,6 +66,7 @@ export default function Dashboard({ data }: DashboardProps) {
       value: project.overall_debt_score.toFixed(1),
       color: 'text-amber-400',
       bg: 'bg-amber-500/10 border-amber-500/20',
+      description: 'An aggregated score reflecting the volume of technical debt, God classes, and convoluted logic in the codebase.',
     },
   ];
 
@@ -77,13 +81,19 @@ export default function Dashboard({ data }: DashboardProps) {
             initial="hidden"
             animate="visible"
             variants={cardVariants}
-            className="glass-card p-5"
+            className="glass-card p-5 relative group cursor-help"
+            title={card.description}
           >
             <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-3 ${card.bg}`}>
               <card.icon className={`w-5 h-5 ${card.color}`} />
             </div>
+            <div className="absolute top-4 right-4 text-slate-500 opacity-50 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] uppercase tracking-widest flex items-center gap-1 font-semibold border border-slate-700/50 rounded-full px-2 py-0.5">
+                <span className="text-xs pb-[1px]">ⓘ</span> Info
+              </span>
+            </div>
             <p className="text-2xl font-bold text-slate-100">{card.value}</p>
-            <p className="text-sm text-slate-400 mt-0.5">{card.label}</p>
+            <p className="text-sm text-slate-400 mt-0.5 border-b border-dashed border-slate-600/50 inline-block">{card.label}</p>
           </motion.div>
         ))}
       </div>
@@ -106,22 +116,26 @@ export default function Dashboard({ data }: DashboardProps) {
               label="Migration Readiness"
               size="lg"
               inverse={true}
+              description="An overall percentage evaluating how easily this codebase can be migrated or refactored, based on dependencies and architecture."
             />
             <ScoreGauge
               score={project.overall_security_score}
               label="Security Score"
               size="md"
               inverse={true}
+              description="A composite score reflecting the absence of hardcoded secrets and known vulnerabilities in the code."
             />
             <ScoreGauge
               score={project.avg_risk_score}
               label="Avg Risk"
               size="md"
+              description="The mean risk level across all files. Higher risk indicates more complex, deeply coupled, or problematic code."
             />
             <ScoreGauge
               score={project.overall_debt_score}
               label="Debt Score"
               size="md"
+              description="A measure of accumulated technical debt (e.g. God classes, poor modularity). Higher is worse."
             />
           </div>
         </motion.div>
