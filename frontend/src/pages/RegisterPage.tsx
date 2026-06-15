@@ -17,20 +17,22 @@ const TERMINAL_LINES = [
   '0101101010010110',
   'PASSWORD: 38*80808',
   'EX3ED00P6ACDEETEC...system-eetor',
+  'INITIALIZING_LEGACYLENS_CORE',
+  'LEGACYLENS_SYS_READY... [OK]',
 ];
 
 function TerminalBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0 bg-[#020008]">
+    <div className="absolute inset-0 overflow-hidden select-none z-0 bg-[#020008]">
       
       {/* Glitch Bars */}
       <motion.div 
-        className="absolute top-[40%] left-0 w-[100%] h-[3px] bg-cyan-400/80 shadow-[0_0_10px_#22d3ee]"
+        className="absolute top-[40%] left-0 w-[100%] h-[3px] bg-cyan-400/80 shadow-[0_0_10px_#22d3ee] pointer-events-none"
         animate={{ opacity: [0, 1, 0], y: [-50, 50, -50] }}
         transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 2 }}
       />
       <motion.div 
-        className="absolute top-[55%] right-0 w-[100%] h-[2px] bg-fuchsia-500/80 shadow-[0_0_10px_#d946ef]"
+        className="absolute top-[55%] right-0 w-[100%] h-[2px] bg-fuchsia-500/80 shadow-[0_0_10px_#d946ef] pointer-events-none"
         animate={{ opacity: [0, 0.8, 0], y: [50, -50, 50] }}
         transition={{ duration: 0.25, repeat: Infinity, repeatDelay: 3.5 }}
       />
@@ -60,13 +62,14 @@ function TerminalBackground() {
         return (
           <motion.div
             key={i}
-            className={`absolute whitespace-nowrap leading-tight ${colorClass} ${sizeClass}`}
+            className={`absolute whitespace-nowrap leading-tight ${colorClass} ${sizeClass} cursor-crosshair transition-colors duration-200 hover:text-white`}
             style={{ 
               left: `${left}%`, 
               top: `${top}%`,
             }}
             initial={{ opacity: Math.random() * 0.2 + 0.1 }}
             animate={{ opacity: [0.1, 0.4, 0.1] }}
+            whileHover={{ opacity: 1, scale: 1.15, textShadow: '0 0 15px currentColor', zIndex: 50 }}
             transition={{ duration: 1.5 + (i % 4), repeat: Infinity, delay: (i % 3) }}
           >
             {TERMINAL_LINES[i % TERMINAL_LINES.length]}
