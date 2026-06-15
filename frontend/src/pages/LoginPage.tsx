@@ -93,7 +93,7 @@ export default function LoginPage() {
   const [isShaking, setIsShaking] = useState(false);
 
   useEffect(() => {
-    if (user) navigate('/projects', { replace: true });
+    if (user) navigate('/', { replace: true });
   }, [user, navigate]);
 
   const triggerShake = () => {

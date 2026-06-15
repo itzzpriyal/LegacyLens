@@ -93,7 +93,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user) navigate('/projects', { replace: true });
+    if (user) navigate('/', { replace: true });
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {

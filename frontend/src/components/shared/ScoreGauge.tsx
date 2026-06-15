@@ -28,14 +28,16 @@ export default function ScoreGauge({ score, label, size = 'md', inverse = false,
   const viewSize = (s.r + s.stroke + 4) * 2;
 
   return (
-    <div 
-      className="flex flex-col items-center gap-2 group cursor-help relative" 
-      title={description}
-    >
+    <div className="flex flex-col items-center gap-2 group relative cursor-pointer">
       {description && (
-        <div className="absolute -top-3 -right-3 text-slate-500 opacity-50 group-hover:opacity-100 transition-opacity z-10 bg-[#020008] rounded-full">
-          <span className="text-[12px] pb-[1px] flex items-center justify-center w-5 h-5 border border-slate-700/50 rounded-full">ⓘ</span>
-        </div>
+        <>
+          <div className="absolute -top-3 -right-3 text-slate-500 opacity-50 group-hover:opacity-100 transition-opacity z-10 bg-[#020008] rounded-full">
+            <span className="text-[12px] pb-[1px] flex items-center justify-center w-5 h-5 border border-slate-700/50 rounded-full">ⓘ</span>
+          </div>
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800/95 backdrop-blur border border-slate-600/50 rounded text-xs text-slate-300 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-xl z-50 text-center pointer-events-none leading-relaxed">
+            {description}
+          </div>
+        </>
       )}
       <div className={`${s.wh} relative`}>
         <svg

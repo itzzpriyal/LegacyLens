@@ -81,17 +81,21 @@ export default function Dashboard({ data }: DashboardProps) {
             initial="hidden"
             animate="visible"
             variants={cardVariants}
-            className="glass-card p-5 relative group cursor-help"
-            title={card.description}
+            className="glass-card p-5 relative group cursor-pointer hover:z-50"
           >
             <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-3 ${card.bg}`}>
               <card.icon className={`w-5 h-5 ${card.color}`} />
             </div>
             <div className="absolute top-4 right-4 text-slate-500 opacity-50 group-hover:opacity-100 transition-opacity">
-              <span className="text-[10px] uppercase tracking-widest flex items-center gap-1 font-semibold border border-slate-700/50 rounded-full px-2 py-0.5">
+              <span className="text-[10px] uppercase tracking-widest flex items-center gap-1 font-semibold border border-slate-700/50 rounded-full px-2 py-0.5 bg-slate-900/50">
                 <span className="text-xs pb-[1px]">ⓘ</span> Info
               </span>
             </div>
+
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2.5 bg-slate-800/95 backdrop-blur border border-slate-600/50 rounded-lg text-[11px] text-slate-300 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-xl z-50 text-center pointer-events-none leading-relaxed">
+              {card.description}
+            </div>
+
             <p className="text-2xl font-bold text-slate-100">{card.value}</p>
             <p className="text-sm text-slate-400 mt-0.5 border-b border-dashed border-slate-600/50 inline-block">{card.label}</p>
           </motion.div>
