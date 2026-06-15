@@ -1,21 +1,41 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/shared/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import AnalysisPage from './pages/AnalysisPage';
 import SettingsPage from './pages/SettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import Navbar from './components/shared/Navbar';
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen">
-        <Navbar />
+      <AuthProvider>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/projects/:id" element={<AnalysisPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          {/* Public routes — no navbar */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Protected routes — with navbar */}
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <div className="min-h-screen">
+                  <Navbar />
+                  <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/projects/:id" element={<AnalysisPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                  </Routes>
+                </div>
+              </ProtectedRoute>
+            }
+          />
         </Routes>
         <Toaster
           position="top-right"
@@ -31,7 +51,7 @@ function App() {
             error: { iconTheme: { primary: '#ef4444', secondary: '#0f172a' } },
           }}
         />
-      </div>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

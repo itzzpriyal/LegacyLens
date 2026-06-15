@@ -12,6 +12,30 @@ export const api = axios.create({
   timeout: 120000,
 });
 
+// Attach JWT token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('legacylens_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// On 401, clear token and redirect to login
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('legacylens_token');
+      localStorage.removeItem('legacylens_user');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // ── Projects ───────────────────────────────────────────────────────────────
 
 export const projectsApi = {
@@ -110,12 +134,17 @@ export const aiApi = {
 
 export const exportApi = {
   exportReport: (projectId: string, format: 'pdf' | 'docx', apiKey?: string, provider?: string) => {
+    const token = localStorage.getItem('legacylens_token') || '';
     const params: Record<string, string> = { format };
     if (apiKey) params.api_key = apiKey;
     if (provider) params.provider = provider;
+    if (token) params.token = token;
     return `${BASE_URL}/api/projects/${projectId}/export?${new URLSearchParams(params).toString()}`;
   },
   exportMetadata: (projectId: string) => {
-    return `${BASE_URL}/api/projects/${projectId}/export/metadata`;
+    const token = localStorage.getItem('legacylens_token') || '';
+    const params: Record<string, string> = {};
+    if (token) params.token = token;
+    return `${BASE_URL}/api/projects/${projectId}/export/metadata?${new URLSearchParams(params).toString()}`;
   },
 };

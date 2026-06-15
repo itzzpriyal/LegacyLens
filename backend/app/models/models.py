@@ -31,10 +31,22 @@ class RiskLevel(str, enum.Enum):
     CRITICAL = "Critical"
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    email = Column(String, unique=True, nullable=False, index=True)
+    hashed_password = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
+
+
 class Project(Base):
     __tablename__ = "projects"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)  # nullable for migration
     name = Column(String, nullable=False)
     source_type = Column(SAEnum(SourceType), nullable=False)
     source_url = Column(String, nullable=True)  # GitHub URL or original filename
@@ -49,6 +61,7 @@ class Project(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    owner = relationship("User", back_populates="projects")
     files = relationship("SourceFile", back_populates="project", cascade="all, delete-orphan")
     dependencies = relationship("Dependency", back_populates="project", cascade="all, delete-orphan")
 

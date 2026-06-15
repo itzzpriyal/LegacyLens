@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import type { Project, DashboardSummary, DependencyGraph, DebtSummary, SecuritySummary, MigrationRoadmap } from '../types';
 import { projectsApi, analysisApi, graphApi, debtApi, securityApi, roadmapApi, aiApi, exportApi } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import Dashboard from '../components/Dashboard/Dashboard';
 import DependencyGraphView from '../components/DependencyGraph/DependencyGraph';
 import DebtDashboard from '../components/DebtDashboard/DebtDashboard';
@@ -46,8 +47,10 @@ export default function AnalysisPage() {
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setPollingInterval] = useState<ReturnType<typeof setInterval> | null>(null);
-  const [provider] = useState(() => localStorage.getItem('legacylens_llm_provider') || 'openai');
-  const [apiKey] = useState(() => localStorage.getItem(`legacylens_api_key_${localStorage.getItem('legacylens_llm_provider') || 'openai'}`) || '');
+  const { user } = useAuth();
+  const uid = user?.id || 'guest';
+  const [provider] = useState(() => localStorage.getItem(`legacylens_llm_provider_${uid}`) || 'openai');
+  const [apiKey] = useState(() => localStorage.getItem(`legacylens_api_key_${uid}_${localStorage.getItem(`legacylens_llm_provider_${uid}`) || 'openai'}`) || '');
 
   const fetchProject = async () => {
     if (!id) return;

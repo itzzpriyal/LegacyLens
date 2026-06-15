@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base
-from app.routers import projects, analysis, graph, debt, security, roadmap, ai, export
+from app.routers import projects, analysis, graph, debt, security, roadmap, ai, export, auth
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,6 +29,7 @@ app.add_middleware(
 )
 
 # Mount routers
+app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
 app.include_router(analysis.router, prefix="/api/projects", tags=["Analysis"])
 app.include_router(graph.router, prefix="/api/projects", tags=["Graph"])

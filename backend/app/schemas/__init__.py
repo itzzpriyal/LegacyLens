@@ -7,6 +7,7 @@ from app.schemas.schemas import (
     MigrationRoadmap, RoadmapPhase,
     AIRecommendationRequest, ReportRequest,
     DashboardSummary, RiskDistribution,
+    UserCreate, UserLogin, UserOut, Token,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "MigrationRoadmap", "RoadmapPhase",
     "AIRecommendationRequest", "ReportRequest",
     "DashboardSummary", "RiskDistribution",
+    "UserCreate", "UserLogin", "UserOut", "Token",
 ]

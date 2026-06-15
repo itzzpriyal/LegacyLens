@@ -4,6 +4,29 @@ from pydantic import BaseModel
 from app.models.models import ProjectStatus, SourceType, RiskLevel
 
 
+# ──────────── Auth Schemas ────────────
+
+class UserCreate(BaseModel):
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserOut(BaseModel):
+    id: str
+    email: str
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
+
+
+
 # ──────────── Project Schemas ────────────
 
 class ProjectCreate(BaseModel):

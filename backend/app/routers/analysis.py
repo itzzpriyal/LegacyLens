@@ -2,10 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.database import get_db
-from app.models.models import Project, SourceFile, RiskLevel
+from app.models.models import Project, SourceFile, RiskLevel, User
 from app.schemas import SourceFileOut, FileList, DashboardSummary, RiskDistribution, ProjectOut
+from app.dependencies import get_current_user
 
 router = APIRouter()
+
+
+def _get_owned_project(project_id: str, user: User, db: Session) -> Project:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    if project.user_id and project.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Not found")
+    return project
 
 
 @router.get("/{project_id}/files", response_model=FileList)
@@ -18,10 +28,9 @@ def get_files(
     limit: int = Query(default=100, le=500),
     offset: int = 0,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    _get_owned_project(project_id, current_user, db)
 
     q = db.query(SourceFile).filter(SourceFile.project_id == project_id)
     if language:
@@ -45,7 +54,13 @@ def get_files(
 
 
 @router.get("/{project_id}/files/{file_id}", response_model=SourceFileOut)
-def get_file(project_id: str, file_id: str, db: Session = Depends(get_db)):
+def get_file(
+    project_id: str,
+    file_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    _get_owned_project(project_id, current_user, db)
     f = db.query(SourceFile).filter(
         SourceFile.id == file_id,
         SourceFile.project_id == project_id
@@ -56,11 +71,12 @@ def get_file(project_id: str, file_id: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{project_id}/dashboard", response_model=DashboardSummary)
-def get_dashboard(project_id: str, db: Session = Depends(get_db)):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
+def get_dashboard(
+    project_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    project = _get_owned_project(project_id, current_user, db)
     files = db.query(SourceFile).filter(SourceFile.project_id == project_id).all()
 
     distribution = RiskDistribution(

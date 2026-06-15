@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models.models import Project, SourceFile, ProjectStatus, RiskLevel
+from app.models.models import Project, SourceFile, ProjectStatus, RiskLevel, User
 from app.schemas import AIRecommendationRequest
 from app.services.ai_service import generate_file_recommendation, generate_roadmap_narrative
 from app.services.roadmap_engine import generate_roadmap
+from app.dependencies import get_current_user
 
 router = APIRouter()
 
@@ -14,11 +15,14 @@ def generate_recommendations(
     project_id: str,
     body: AIRecommendationRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Generate AI recommendations for all high/critical files in a project."""
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    if project.user_id and project.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not found")
     if project.status != ProjectStatus.COMPLETE:
         raise HTTPException(status_code=400, detail="Analysis must complete before generating recommendations")
 
@@ -55,11 +59,14 @@ def generate_narrative(
     project_id: str,
     body: AIRecommendationRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """Generate an AI executive narrative for the migration roadmap."""
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    if project.user_id and project.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not found")
 
     files = db.query(SourceFile).filter(SourceFile.project_id == project_id).all()
     phases = generate_roadmap(files)
