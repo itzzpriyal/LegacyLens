@@ -65,8 +65,8 @@ function TerminalBackground() {
               left: `${left}%`, 
               top: `${top}%`,
             }}
-            initial={{ opacity: Math.random() * 0.5 + 0.3 }}
-            animate={{ opacity: [0.3, 1, 0.3] }}
+            initial={{ opacity: Math.random() * 0.2 + 0.1 }}
+            animate={{ opacity: [0.1, 0.4, 0.1] }}
             transition={{ duration: 1.5 + (i % 4), repeat: Infinity, delay: (i % 3) }}
           >
             {TERMINAL_LINES[i % TERMINAL_LINES.length]}
