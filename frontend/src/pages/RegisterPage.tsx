@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Cpu } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const TERMINAL_LINES = [

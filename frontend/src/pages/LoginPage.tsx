@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { Lock, Cpu } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const TERMINAL_LINES = [
@@ -20,10 +20,6 @@ const TERMINAL_LINES = [
 ];
 
 function TerminalBackground() {
-  const cols = 12;
-  const rows = 12;
-  const totalItems = cols * rows;
-
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0 bg-[#020008]">
       

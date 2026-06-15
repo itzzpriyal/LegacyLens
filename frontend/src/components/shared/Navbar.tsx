@@ -1,10 +1,9 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Cpu, Settings, LayoutDashboard, Zap, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function Navbar() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   const isActive = (path: string) =>
