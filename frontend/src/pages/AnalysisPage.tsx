@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
   LayoutDashboard, GitBranch, Bug, Shield, Map, Sparkles,
-  FileDown, FileArchive, ArrowLeft, Clock, CheckCircle2, XCircle, Loader2, Cpu
+  FileDown, FileArchive, ArrowLeft, Clock, CheckCircle2, XCircle, Loader2, Cpu, AlertTriangle
 } from 'lucide-react';
 import type { Project, DashboardSummary, DependencyGraph, DebtSummary, SecuritySummary, MigrationRoadmap } from '../types';
 import { projectsApi, analysisApi, graphApi, debtApi, securityApi, roadmapApi, aiApi, exportApi } from '../api/client';
@@ -183,18 +183,35 @@ export default function AnalysisPage() {
 
         {project.status === 'complete' && (
           <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={handleGenerateAI}
-              disabled={isGeneratingAI}
-              className="btn-secondary"
-            >
-              {isGeneratingAI ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Sparkles className="w-4 h-4" />
+            <div className="relative group z-50">
+              <button
+                onClick={handleGenerateAI}
+                disabled={isGeneratingAI}
+                className="btn-secondary"
+              >
+                {isGeneratingAI ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4" />
+                )}
+                AI Recommendations
+              </button>
+              {!apiKey && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 p-4 bg-slate-900/95 backdrop-blur-md border border-slate-700/60 rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 shadow-2xl z-50 text-left pointer-events-none">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1.5 bg-amber-500/10 rounded-lg shrink-0">
+                      <AlertTriangle className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <div>
+                      <span className="block font-semibold text-[13px] text-slate-200 mb-1">Configuration Required</span>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Please configure an LLM provider and provide a valid API key in your <strong className="text-slate-300">Settings</strong> to unlock AI-driven insights.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               )}
-              AI Recommendations
-            </button>
+            </div>
             <div className="relative group z-50">
               <button className="btn-secondary">
                 <FileDown className="w-4 h-4" />
