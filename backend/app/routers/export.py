@@ -76,8 +76,8 @@ def export_report(
 def export_metadata(
     project_id: str,
     token: str | None = Query(default=None),
+    current_user: User | None = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Export metadata for all files as a ZIP archive."""
     import json
