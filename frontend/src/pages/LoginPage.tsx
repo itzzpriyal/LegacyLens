@@ -36,7 +36,7 @@ function TerminalBackground() {
       />
 
       {/* Scattered completely random horizontal blocks of varying sizes, but CRISP */}
-      {Array.from({ length: 140 }).map((_, i) => {
+      {Array.from({ length: 50 }).map((_, i) => {
         const isCyan = i % 3 === 0;
         const isPurple = i % 5 === 0;
         
